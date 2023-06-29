@@ -47,3 +47,6 @@ _out*
 _site
 core
 profiler.csv
+
+.*
+!.gitignore

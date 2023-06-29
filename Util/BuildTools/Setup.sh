@@ -118,7 +118,7 @@ unset LLVM_BASENAME
 # -- Get boost includes --------------------------------------------------------
 # ==============================================================================
 
-BOOST_VERSION=1.80.0
+BOOST_VERSION=1.82.0
 BOOST_BASENAME="boost-${BOOST_VERSION}-${CXX_TAG}"
 
 BOOST_INCLUDE=${PWD}/${BOOST_BASENAME}-install/include
@@ -143,7 +143,10 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     BOOST_PACKAGE_BASENAME=boost_${BOOST_VERSION//./_}
 
     log "Retrieving boost."
-    wget "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
+    if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
+      wget "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
+    fi
+    # wget "https://boostorg.jfrog.io/artifactory/main/release/${BOOST_VERSION}/source/${BOOST_PACKAGE_BASENAME}.tar.gz" || true
     # try to use the backup boost we have in Jenkins
     if [[ ! -f "${BOOST_PACKAGE_BASENAME}.tar.gz" ]] ; then
       log "Using boost backup"
@@ -156,9 +159,9 @@ for PY_VERSION in ${PY_VERSION_LIST[@]} ; do
     mv ${BOOST_PACKAGE_BASENAME} ${BOOST_BASENAME}-source
 
     pushd ${BOOST_BASENAME}-source >/dev/null
-
+    log "Extraction complete" 
     BOOST_TOOLSET="clang-$CARLA_LLVM_VERSION_MAJOR.0"
-    BOOST_CFLAGS="-fPIC -std=c++14 -DBOOST_ERROR_CODE_HEADER_ONLY"
+    BOOST_CFLAGS="-fPIC -std=c++11 -DBOOST_ERROR_CODE_HEADER_ONLY"
 
     py3="/usr/bin/env python${PY_VERSION}"
     py3_root=`${py3} -c "import sys; print(sys.prefix)"`
