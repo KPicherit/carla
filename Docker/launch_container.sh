@@ -1,6 +1,6 @@
 
-container_name="carla_22"
-image_name="carla-22:test"
+container_name="carla_20"
+image_name="carla-20:test"
 
 ROOT_FOLDER="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../" && pwd)"
 
@@ -22,7 +22,7 @@ else
             -e DISPLAY \
             --privileged \
             --device /dev/dri \
-            --cpus=$(($(nproc) - 1)) --cpuset-cpus=0-$(($(nproc) - 2)) \
+            --cpus=$(($(nproc) - 3)) --cpuset-cpus=0-$(($(nproc) - 6)) \
             --name "$container_name" \
             -v ${ROOT_FOLDER}/carla/Docker/.bash_history_container:/root/.bash_history\
             -v ${ROOT_FOLDER}/UnrealEngine:/home/UnrealEngine\

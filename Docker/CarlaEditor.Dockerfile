@@ -1,9 +1,9 @@
 # syntax=docker/dockerfile:1
 
 # Build CarlaSetup.Dockerfile before building this image
-# docker build -t carla-editor:latest -f Docker/CarlaEditor.Dockerfile .
+# docker build -t carla-20:latest -f Docker/CarlaEditor.Dockerfile .
 
-FROM ubuntu:22.04 as build
+FROM ubuntu:20.04 as build
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -15,8 +15,9 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update && \ 
     apt-get install wget software-properties-common -y && \
     add-apt-repository ppa:ubuntu-toolchain-r/test -y && \
+    add-apt-repository ppa:deadsnakes/ppa -y && \
     wget -O - https://apt.llvm.org/llvm-snapshot.gpg.key|apt-key add - && \
-    apt-add-repository "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-8 main" && \ 
+    apt-add-repository "deb http://apt.llvm.org/focal/ llvm-toolchain-focal main" && \ 
     apt-get update -y
 
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -25,12 +26,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt upgrade -y && \
     apt-get install -y --no-install-recommends \
         build-essential \
-        clang-14 \
-        lld-14 \
-        g++-11 \
+        clang-10 \
+        lld-10 \
+        g++-7 \
         cmake \
         ninja-build \
         libvulkan1 \
+        python3.10 \
         python3-dev \
         python3-pip \
         libpng-dev \
@@ -41,6 +43,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         curl \
         unzip \
         autoconf \
+        automake \
         libtool \
         rsync \
         libxml2-dev \
@@ -76,18 +79,16 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         x11-xserver-utils \ 
         libxrandr2 
 
-# RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
-#     --mount=type=cache,target=/var/lib/apt,sharing=locked \
-#     add-apt-repository ppa:kisak/kisak-mesa -y \
-#     && apt update \
-#     && apt upgrade -y
+RUN update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-10/bin/clang 180
+RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-10/bin/clang++ 180
+RUN dpkg -l | grep python3.10 > /tmp/tmp2.txt && cat /tmp/tmp2.txt
 
-RUN update-alternatives --install /usr/bin/clang clang /usr/lib/llvm-14/bin/clang-14 180
-RUN update-alternatives --install /usr/bin/clang++ clang++ /usr/lib/llvm-14/bin/clang++ 180
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 180
+
 
 ENV UE4_ROOT /home/UnrealEngine
 
 RUN useradd --create-home --uid 1000 carla
-# USER carla
+USER carla
 WORKDIR /home/carla/
 CMD /bin/bash
